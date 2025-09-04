@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.env.local
+.DS_Store
+*.swp
+*.swo
+*~
+workspace/*
+!workspace/.gitkeep
+README.md
+.dockerignore

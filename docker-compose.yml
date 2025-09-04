@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  dev-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Update this with your Neovim config repo
+        NVIM_CONFIG_REPO: ${NVIM_CONFIG_REPO:-}
+    image: linux-dev-container:latest
+    container_name: dev-container
+    hostname: devbox
+    volumes:
+      # Mount your workspace
+      - ./workspace:/workspace
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persist home directory
+      - dev-home:/home/developer
+      # Mount SSH keys (optional)
+      - ~/.ssh:/home/developer/.ssh:ro
+      # Mount git config (optional)
+      - ~/.gitconfig:/home/developer/.gitconfig:ro
+      # X11 forwarding for GUI apps (macOS/Linux)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      # X11 forwarding
+      - DISPLAY=${DISPLAY:-:0}
+      # Terminal settings
+      - TERM=xterm-256color
+      - COLORTERM=truecolor
+      # Additional terminal settings for nvim
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - LC_CTYPE=en_US.UTF-8
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - dev-network
+    # Add capabilities for better container experience
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+volumes:
+  dev-home:
+    name: dev-container-home
+
+networks:
+  dev-network:
+    name: dev-container-network
+    driver: bridge
